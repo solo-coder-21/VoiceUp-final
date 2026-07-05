@@ -1,0 +1,43 @@
+Demo Link | Explore AI Capabilities
+
+
+Transcription & Recording Solution
+
+Agent SDK
+
+
+Tabs
+Products		Solutions			Demos 				Pricing			Customers&Partners	About Us
+|                       |                               |                               |                       |
++-- Outbound            +--- AI Voice Connector         +-- Request a Demo              +-- Contact Sales       +-- VIS
+|                       |                               |                                   (info@voiceup.ai)   |
++-- Transcriptions      +--- AI Analytics& Insights     +-- Recording (Video)                                   +-- Yes Bank
+|                                                       |
++-- Voice Bots                                          +-- Transcriptions (Video)
+|                                                       |
++-- Recording                                           +-- Analytics    
+|                                                       |
++-- Analytics                                           +-- -- Voice Bot
+                                                        
+                                                        
+
+
+
+ 
+Tabs
+Product
+Outbound AI BOT
+Transcriptions
+Voice Bots
+Recording
+Analytics
+Solutions
+AI Voice Connector
+AI Analytics & Insights
+Demos
+Request a demo 
+Open a text  box from user and send mail to info@voiceup.ai with subject: Demo: Text collected from user
+Recording Video demo
+Transcription Video Demo
+Analytics Video Demo
+Voice Bot Video Demo

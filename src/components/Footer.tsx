@@ -1,115 +1,111 @@
-
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, ArrowUp, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Mail, MapPin, Linkedin, Twitter, Github } from 'lucide-react';
+
+const footerCols = [
+  {
+    heading: 'Products',
+    links: [
+      { to: '/products/outbound', label: 'Outbound' },
+      { to: '/products/transcriptions', label: 'Transcriptions' },
+      { to: '/products/voicebots', label: 'Voice Bots' },
+      { to: '/products/recording', label: 'Recording' },
+      { to: '/products/analytics', label: 'Analytics' },
+    ],
+  },
+  {
+    heading: 'Solutions',
+    links: [
+      { to: '/solutions/ai-voice-connector', label: 'AI Voice Connector' },
+      { to: '/solutions/ai-analytics-insights', label: 'AI Analytics & Insights' },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { to: '/demos', label: 'Demos' },
+      { to: '/pricing', label: 'Pricing' },
+      { to: '/customers', label: 'Customers & Partners' },
+      { to: '/about', label: 'About Us' },
+    ],
+  },
+];
 
 const Footer = () => {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
     <footer className="bg-voiceup-navy text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={scrollToTop}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <div className="grid lg:grid-cols-[1.3fr_2fr] gap-10">
+          {/* Brand */}
+          <div className="space-y-5">
+            <Link to="/" onClick={scrollToTop} className="inline-flex items-center space-x-2 cursor-pointer">
               <img
                 src="/voiceup-logo.png"
                 alt="VoiceUp Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8"
+                width={36}
+                height={36}
+                className="h-9 w-9"
                 loading="lazy"
                 decoding="async"
               />
-              <span className="text-xl font-bold">VoiceUp</span>
-            </div>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              Innovative voice solutions for contact centers with AI-powered automation, 
-              speech recognition, and analytics.
+              <span className="text-2xl font-bold">VoiceUp</span>
+            </Link>
+            <p className="text-sm text-white/75 leading-relaxed max-w-sm">
+              Enterprise voice + AI — transcription, recording, voicebots, and analytics under one tenant-aware platform.
             </p>
-            
-            {/* Contact Info */}
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-sm">
-                <Mail className="h-4 w-4 text-voiceup-skyblue" />
-                <span>contact@voiceup.ai</span>
+
+            <div className="space-y-2 text-sm">
+              <a href="mailto:info@voiceup.ai" className="flex items-center gap-2 text-white/85 hover:text-voiceup-skyblue transition-colors">
+                <Mail className="h-4 w-4" />
+                info@voiceup.ai
+              </a>
+              <div className="flex items-start gap-2 text-white/75">
+                <MapPin className="h-4 w-4 mt-0.5" />
+                <span>India</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <Phone className="h-4 w-4 text-voiceup-skyblue" />
-                <span>+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <MapPin className="h-4 w-4 text-voiceup-skyblue" />
-                <span>San Francisco, CA</span>
-              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <a href="#" aria-label="LinkedIn" className="h-9 w-9 rounded-lg border border-white/15 flex items-center justify-center hover:bg-white hover:text-voiceup-navy transition-colors">
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a href="#" aria-label="Twitter" className="h-9 w-9 rounded-lg border border-white/15 flex items-center justify-center hover:bg-white hover:text-voiceup-navy transition-colors">
+                <Twitter className="h-4 w-4" />
+              </a>
+              <a href="#" aria-label="GitHub" className="h-9 w-9 rounded-lg border border-white/15 flex items-center justify-center hover:bg-white hover:text-voiceup-navy transition-colors">
+                <Github className="h-4 w-4" />
+              </a>
             </div>
           </div>
 
-          {/* Solutions */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-voiceup-skyblue">Solutions</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/solutions" className="text-gray-300 hover:text-white transition-colors">VoiceUp Bridge</Link></li>
-              <li><Link to="/solutions" className="text-gray-300 hover:text-white transition-colors">Recording & Transcription</Link></li>
-              <li><Link to="/solutions" className="text-gray-300 hover:text-white transition-colors">Speech Recognition</Link></li>
-              <li><Link to="/solutions" className="text-gray-300 hover:text-white transition-colors">Analytics & Insights</Link></li>
-              <li><Link to="/solutions" className="text-gray-300 hover:text-white transition-colors">Agent Desktop Plugin</Link></li>
-              <li><Link to="/solutions" className="text-gray-300 hover:text-white transition-colors">VoiceBot & ChatBot</Link></li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-voiceup-skyblue">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/brochure" className="text-gray-300 hover:text-white transition-colors">Brochure</Link></li>
-              <li><Link to="/flyer" className="text-gray-300 hover:text-white transition-colors">Flyers</Link></li>
-              <li><Link to="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</Link></li>
-              <li><Link to="/industries" className="text-gray-300 hover:text-white transition-colors">Industries</Link></li>
-              <li><Link to="/case-studies" className="text-gray-300 hover:text-white transition-colors">Case Studies</Link></li>
-            </ul>
-          </div>
-
-          {/* Social & Contact */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-voiceup-skyblue">Connect</h3>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-voiceup-skyblue transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-voiceup-skyblue transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-voiceup-skyblue transition-colors">
-                <Linkedin className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-voiceup-skyblue transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-            </div>
-            
-            <button 
-              onClick={scrollToTop}
-              className="flex items-center space-x-2 text-voiceup-skyblue hover:text-white transition-colors group"
-            >
-              <ArrowUp className="h-4 w-4 group-hover:animate-bounce" />
-              <span className="text-sm">Back to Top</span>
-            </button>
+          {/* Link columns */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
+            {footerCols.map((col) => (
+              <div key={col.heading}>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-white/90 mb-4">{col.heading}</h3>
+                <ul className="space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l.to}>
+                      <Link to={l.to} className="text-sm text-white/70 hover:text-voiceup-skyblue transition-colors">
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">
-            © 2024 VoiceUp. All rights reserved.
-          </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
-            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a>
-            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Cookie Policy</a>
+        {/* Bottom strip */}
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <p className="text-xs text-white/60">© {new Date().getFullYear()} VoiceUp. All rights reserved.</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/60">
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Security</a>
+            <a href="mailto:info@voiceup.ai" className="hover:text-white transition-colors">Contact</a>
           </div>
         </div>
       </div>

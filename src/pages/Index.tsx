@@ -1,580 +1,724 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, Mic, BarChart3, Bot, PhoneCall, BrainCircuit, Headphones } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowRight,
+  Mic,
+  FileText,
+  Bot,
+  Headphones,
+  BarChart3,
+  Cable,
+  BrainCircuit,
+  ShieldCheck,
+  Globe2,
+  Cpu,
+  Server,
+  Check,
+  Sparkles,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
+type Capability = {
+  id: number;
+  to: string;
+  badge: string;
+  title: string;
+  tagline: string;
+  icon: React.ReactNode;
+  content: string;
+  /** Tailwind gradient classes used as a tinted color wash over the background image */
+  color: string;
+  /** Unsplash card background — appears subtly on inactive cards, full on active */
+  backgroundImage: string;
+  /** Larger hero image used in the sticky preview pane */
+  image: string;
+  /** Short feature tags shown as pills in the preview pane */
+  highlights: string[];
+};
+
+const products: Capability[] = [
+  {
+    id: 1,
+    to: '/products/outbound',
+    badge: 'Product',
+    title: 'Outbound Voicebot',
+    tagline: 'Reach customers proactively at scale',
+    icon: <Mic className="h-7 w-7" />,
+    content: 'Automate reminders, surveys, collections, and lead qualification at scale — with multi-language dialogue, retry rules, and full audit trails.',
+    color: 'from-voiceup-skyblue/85 to-voiceup-periwinkle/95',
+    backgroundImage: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&h=600&fit=crop',
+    highlights: ['Multilingual dialogue', 'Campaign orchestration', 'Compliance-ready'],
+  },
+  {
+    id: 2,
+    to: '/products/transcriptions',
+    badge: 'Product',
+    title: 'Transcriptions',
+    tagline: 'Real-time, accurate speech-to-text',
+    icon: <FileText className="h-7 w-7" />,
+    content: 'Real-time, multilingual speech-to-text for contact centers, voicebots, and compliance — streamed over secure WebSockets with interim and final results.',
+    color: 'from-voiceup-periwinkle/85 to-voiceup-chartblue/95',
+    backgroundImage: 'https://images.unsplash.com/photo-1589254065878-42c9da997008?w=900&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1589254065878-42c9da997008?w=900&h=600&fit=crop',
+    highlights: ['Streaming STT', 'Multilingual', 'WebSocket API'],
+  },
+  {
+    id: 3,
+    to: '/products/voicebots',
+    badge: 'Product',
+    title: 'Voice Bots',
+    tagline: 'Natural dialogue, automated at scale',
+    icon: <Bot className="h-7 w-7" />,
+    content: 'Inbound and outbound voice assistants with intent detection, dialogue management, and seamless agent handoff — built for production telephony.',
+    color: 'from-voiceup-navy/90 to-voiceup-skyblue/85',
+    backgroundImage: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=900&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=900&h=600&fit=crop',
+    highlights: ['Inbound & outbound', 'Intent detection', 'Agent handoff'],
+  },
+  {
+    id: 4,
+    to: '/products/recording',
+    badge: 'Product',
+    title: 'Call Recording',
+    tagline: 'Capture, store, and govern every call',
+    icon: <Headphones className="h-7 w-7" />,
+    content: 'Enterprise-grade call capture with encrypted storage, retention policies, role-based access, and fast retrieval for QA, audit, and disputes.',
+    color: 'from-voiceup-chartblue/85 to-voiceup-skyblue/90',
+    backgroundImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&h=600&fit=crop',
+    highlights: ['Encrypted storage', 'Fast retrieval', 'Audit trails'],
+  },
+  {
+    id: 5,
+    to: '/products/analytics',
+    badge: 'Product',
+    title: 'Analytics',
+    tagline: 'AI insight on every conversation',
+    icon: <BarChart3 className="h-7 w-7" />,
+    content: 'AI-powered conversation intelligence: summaries, sentiment, emotion, resolution status, keywords, and topics — delivered via API.',
+    color: 'from-voiceup-skyblue/85 to-voiceup-navy/90',
+    backgroundImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&h=600&fit=crop',
+    highlights: ['Sentiment & emotion', 'Topic extraction', 'On-demand insights'],
+  },
+];
+
+const solutions: Capability[] = [
+  {
+    id: 6,
+    to: '/solutions/ai-voice-connector',
+    badge: 'Solution',
+    title: 'AI Voice Connector',
+    tagline: 'Bridge telephony and AI in real time',
+    icon: <Cable className="h-7 w-7" />,
+    content: 'Bridge your PSTN, SBC, and CPaaS to AI in real time. Stream audio, route messages, and synchronize sessions — without replacing your telephony stack.',
+    color: 'from-voiceup-navy/90 to-voiceup-periwinkle/85',
+    backgroundImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&h=600&fit=crop',
+    highlights: ['Low-latency audio', 'Multi-tenant', 'Resilient connectivity'],
+  },
+  {
+    id: 7,
+    to: '/solutions/ai-analytics-insights',
+    badge: 'Solution',
+    title: 'AI Analytics & Insights',
+    tagline: 'From conversations to action',
+    icon: <BrainCircuit className="h-7 w-7" />,
+    content: 'Turn every conversation into structured intelligence: trends, themes, sentiment, and outcomes for operations, QA, and leadership reporting.',
+    color: 'from-voiceup-periwinkle/85 to-voiceup-skyblue/90',
+    backgroundImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=900&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=900&h=600&fit=crop',
+    highlights: ['Resolution tracking', 'Custom prompts', 'API-first'],
+  },
+];
+
+const capabilities = [...products, ...solutions];
+
+const platformHighlights = [
+  { icon: <ShieldCheck className="h-5 w-5" />, title: 'Compliance-first', body: 'Tenant isolation, audit trails, retention policy, and data residency built into every product.' },
+  { icon: <Server className="h-5 w-5" />, title: 'Your deployment', body: 'On-premises, private cloud, or SaaS — same product, same APIs, your control plane.' },
+  { icon: <Globe2 className="h-5 w-5" />, title: 'Multilingual', body: 'English, Hindi, and other Indian and global languages with automatic detection and translation.' },
+  { icon: <Cpu className="h-5 w-5" />, title: 'Pluggable AI', body: 'Tenant-level speech engines and LLM providers with failover and regional routing.' },
+];
+
 const Index = () => {
-  const [hoveredCapability, setHoveredCapability] = useState<number | null>(null);
-  const [videoInView, setVideoInView] = useState(false);
-  const [platformCapabilitiesInView, setPlatformCapabilitiesInView] = useState(false);
-  const [circularMenuInView, setCircularMenuInView] = useState(false);
+  const [activeId, setActiveId] = useState<number>(capabilities[0].id);
+  const [sectionInView, setSectionInView] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-  const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const videoSectionRef = useRef<HTMLDivElement>(null);
-  const platformCapabilitiesRef = useRef<HTMLDivElement>(null);
-  const circularMenuRef = useRef<HTMLDivElement>(null);
-  const videoFrameRef = useRef<HTMLDivElement>(null);
-
-  const capabilities = [
-    {
-      id: 1,
-      title: "VoiceUp Bridge",
-      icon: <BrainCircuit className="h-8 w-8" />,
-      content: "A platform for seamless, flexible and user-friendly communication integration with AI platforms with robust and advanced services.",
-      image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop",
-      color: "from-purple-500 to-blue-600",
-      iconColor: "text-purple-400",
-      bgGradient: "from-purple-50 to-blue-50",
-      backgroundImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop"
-    },
-    {
-      id: 2,
-      title: "Speech Recognition",
-      icon: <Mic className="h-8 w-8" />,
-      content: "Unlock the power of voice. Our advanced speech recognition technology transforms spoken words into accurate text, effortlessly. Streamline workflows, enhance accessibility, and connect with your audience like never before.",
-      image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&h=400&fit=crop",
-      color: "from-cyan-500 to-blue-600",
-      iconColor: "text-cyan-400",
-      bgGradient: "from-cyan-50 to-blue-50",
-      backgroundImage: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=800&h=600&fit=crop"
-    },
-    {
-      id: 3,
-      title: "Call Recording & Transcription",
-      icon: <PhoneCall className="h-8 w-8" />,
-      content: "Capture Every Conversation. Our seamless call recording and accurate transcription services ensure you never miss a detail. Effortlessly record, transcribe, and access your important calls.",
-      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop",
-      color: "from-green-500 to-emerald-600",
-      iconColor: "text-green-400",
-      bgGradient: "from-green-50 to-emerald-50",
-      backgroundImage: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=600&fit=crop"
-    },
-    {
-      id: 4,
-      title: "Analytics & Insights",
-      icon: <BarChart3 className="h-8 w-8" />,
-      content: "True Call Intelligence. Our solution goes beyond simple transcription, providing deep analytics on every call. Identify patterns, track compliance, and gain unparalleled insights to enhance your sales, support, and operations.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
-      color: "from-orange-500 to-red-600",
-      iconColor: "text-orange-400",
-      bgGradient: "from-orange-50 to-red-50",
-      backgroundImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop"
-    },
-    {
-      id: 5,
-      title: "Agent Desktop Plugin",
-      icon: <Headphones className="h-8 w-8" />,
-      content: "Transcribe & Translate Live. Integrate our powerful desktop plugin to give your agents immediate access to call transcripts and translated text. Improve accuracy, accelerate training, and elevate customer satisfaction.",
-      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop",
-      color: "from-indigo-500 to-purple-600",
-      iconColor: "text-indigo-400",
-      bgGradient: "from-indigo-50 to-purple-50",
-      backgroundImage: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=800&h=600&fit=crop"
-    },
-    {
-      id: 6,
-      title: "VoiceBot, ChatBot",
-      icon: <Bot className="h-8 w-8" />,
-      content: "Voice & Chat. Smart Automation. Deploy our AI-driven voicebots and chatbots to handle inquiries, resolve issues, and enhance customer service around the clock. Effortless, intelligent interactions. Scale your support with AI.",
-      image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=600&h=400&fit=crop",
-      color: "from-pink-500 to-rose-600",
-      iconColor: "text-pink-400",
-      bgGradient: "from-pink-50 to-rose-50",
-      backgroundImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=600&fit=crop"
-    }
-  ];
-
-  const selectedCapability = hoveredCapability ? capabilities.find(c => c.id === hoveredCapability) : capabilities[0];
-
-  // IntersectionObservers — used to gate the heaviest animations to when their section is on-screen.
+  // IntersectionObserver to gate decorative animations when the placards section is on-screen.
   useEffect(() => {
-    const videoObserver = new IntersectionObserver(
-      ([entry]) => setVideoInView(entry.isIntersecting),
-      { threshold: 0.1 }
-    );
-
-    const platformCapabilitiesObserver = new IntersectionObserver(
-      ([entry]) => setPlatformCapabilitiesInView(entry.isIntersecting),
+    if (!sectionRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setSectionInView(entry.isIntersecting),
       { threshold: 0.2 }
     );
-
-    const circularMenuObserver = new IntersectionObserver(
-      ([entry]) => setCircularMenuInView(entry.isIntersecting),
-      { threshold: 0.2 }
-    );
-
-    if (videoSectionRef.current) videoObserver.observe(videoSectionRef.current);
-    if (platformCapabilitiesRef.current) platformCapabilitiesObserver.observe(platformCapabilitiesRef.current);
-    if (circularMenuRef.current) circularMenuObserver.observe(circularMenuRef.current);
-
-    return () => {
-      videoObserver.disconnect();
-      platformCapabilitiesObserver.disconnect();
-      circularMenuObserver.disconnect();
-    };
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, []);
 
-  // Pause the hero background <video> when the hero leaves the viewport so it doesn't keep
-  // decoding frames while the user scrolls deeper into the page.
-  useEffect(() => {
-    const video = heroVideoRef.current;
-    if (!video) return;
-
-    const heroObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          video.play().catch(() => {});
-        } else {
-          video.pause();
-        }
-      },
-      { threshold: 0.05 }
-    );
-    heroObserver.observe(video);
-    return () => heroObserver.disconnect();
-  }, []);
-
-  // Scroll-linked styles driven via CSS variables + rAF, instead of React state. This keeps
-  // the scroll handler from re-rendering the whole page on every frame, which was the main
-  // source of scroll-jacking lag.
-  useEffect(() => {
-    let ticking = false;
-
-    const update = () => {
-      ticking = false;
-
-      const frame = videoFrameRef.current;
-      if (frame && videoSectionRef.current) {
-        const rect = videoSectionRef.current.getBoundingClientRect();
-        const wh = window.innerHeight;
-        if (rect.top <= wh && rect.bottom >= 0) {
-          const sectionCenter = rect.top + rect.height / 2;
-          const distance = Math.abs(sectionCenter - wh / 2);
-          const maxDistance = wh / 2 + rect.height / 2;
-          const progress = Math.max(0, 1 - distance / maxDistance);
-          const scale = Math.min(1, Math.max(0.5, 0.5 + progress * 0.5));
-          frame.style.setProperty('--video-scale', scale.toFixed(3));
-        }
-      }
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    };
-
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, []);
+  const selected = capabilities.find((c) => c.id === activeId) ?? capabilities[0];
 
   return (
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <video
-            ref={heroVideoRef}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="/voiceup-logo.png"
-            className="w-full h-full object-cover"
-          >
-            <source src="/lovable-uploads/bghr.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-gradient-to-r from-voiceup-navy/80 via-voiceup-navy/60 to-transparent"></div>
+      {/* Hero — dark navy with cyan radial accents, matching the AI Voice Connector hero gradient */}
+      <section className="relative min-h-screen overflow-hidden pt-16 flex items-center">
+        {/* Base: dark navy → deeper navy → cyan (bottom-right) */}
+        <div aria-hidden="true" className="absolute inset-0 -z-20 bg-gradient-to-br from-voiceup-navy via-voiceup-navy to-voiceup-periwinkle" />
+        {/* Cyan glow at top-right — main accent */}
+        <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_right,rgba(0,168,224,0.4),transparent_55%)]" />
+        {/* Chart-blue glow at bottom-left — secondary accent */}
+        <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_bottom_left,rgba(91,123,216,0.25),transparent_55%)]" />
+        {/* Subtle grid pattern overlay */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 opacity-[0.10]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+          }}
+        />
+        {/* Glow blobs — cyan-tinted for the dark canvas */}
+        <div aria-hidden="true" className="absolute top-1/4 -left-24 h-72 w-72 rounded-full bg-voiceup-skyblue/20 blur-3xl animate-float-soft" />
+        <div aria-hidden="true" className="absolute bottom-1/4 -right-24 h-80 w-80 rounded-full bg-voiceup-chartblue/25 blur-3xl animate-float-soft" style={{ animationDelay: '2s' }} />
+
+        {/* Animated waveform along the bottom */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-32 sm:h-40 flex items-end justify-center gap-[3px] px-2 opacity-50">
+          {[...Array(72)].map((_, i) => {
+            const h = 8 + Math.abs(Math.sin(i * 0.32)) * 92;
+            return (
+              <span
+                key={`hero-wave-${i}`}
+                className="block w-1 rounded-t-sm bg-gradient-to-t from-white to-white/40"
+                style={{
+                  height: `${h}px`,
+                  animation: `wave-pulse ${1.4 + (i % 6) * 0.14}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.025}s`,
+                }}
+              />
+            );
+          })}
         </div>
 
-        {/* Hero Content */}
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 animate-fade-in">
-            VoiceUp: Innovative <span className="gradient-text text-transparent bg-gradient-to-r from-voiceup-skyblue to-white bg-clip-text">Voice Solutions</span>
-          </h1>
-          <p className="text-base sm:text-lg lg:text-2xl mb-8 text-gray-200 font-light animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Explore the cutting-edge advancements in voice technology and how VoiceUp is redefining communication and interaction in today's AI landscape.
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 lg:py-24">
+          <div className="grid lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-16 items-center">
+            {/* Hero copy */}
+            <div className="text-white">
+              <p className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-xs sm:text-sm tracking-wide uppercase mb-6 animate-fade-in">
+                <Sparkles className="h-3.5 w-3.5" />
+                Enterprise voice + AI
+              </p>
+
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.04] mb-6 animate-fade-in">
+                Don&apos;t miss
+                <br />
+                <span className="relative inline-block">
+                  <span className="relative z-10">any call.</span>
+                  {/* Hand-drawn underline accent in white */}
+                  <svg
+                    aria-hidden="true"
+                    className="absolute -bottom-2 left-0 w-full"
+                    viewBox="0 0 320 14"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M 4 9 Q 80 1 160 8 T 316 7"
+                      stroke="white"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      fill="none"
+                      opacity="0.9"
+                    />
+                  </svg>
+                </span>
+              </h1>
+
+              <p
+                className="text-base sm:text-lg lg:text-xl text-white/90 leading-relaxed mb-9 max-w-xl animate-fade-in"
+                style={{ animationDelay: '0.15s' }}
+              >
+                Monitor calls in real time, capture every insight, and turn every conversation into data — transcription, recording, voicebots, and analytics under one tenant-aware platform.
+              </p>
+
+              <div className="flex flex-wrap gap-3 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-white text-voiceup-skyblue hover:bg-voiceup-navy hover:text-white px-7 py-5 text-base rounded-full shadow-xl shadow-voiceup-navy/20 font-semibold"
+                >
+                  <Link to="/demos#request">
+                    Request a Demo <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent border-white/50 text-white hover:bg-white hover:text-voiceup-skyblue px-7 py-5 text-base rounded-full"
+                >
+                  <Link to="/products/transcriptions">Explore products</Link>
+                </Button>
+              </div>
+
+              <div
+                className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-xs sm:text-sm text-white/85 animate-fade-in"
+                style={{ animationDelay: '0.45s' }}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4" /> Compliance-first
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <Globe2 className="h-4 w-4" /> Multilingual
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <Server className="h-4 w-4" /> On-prem or cloud
+                </span>
+              </div>
+            </div>
+
+            {/* Floating glassmorphic preview card */}
+            <div
+              className="relative animate-fade-in"
+              style={{ animationDelay: '0.25s' }}
+            >
+              {/* Soft white halo behind the card */}
+              <div aria-hidden="true" className="absolute inset-4 rounded-3xl bg-white/20 blur-2xl" />
+
+              <div className="relative bg-white/15 backdrop-blur-xl border border-white/30 rounded-3xl p-5 sm:p-6 shadow-2xl">
+                {/* Card header */}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-50 animate-ping" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+                    </span>
+                    <span className="text-sm font-semibold text-white">Live conversation</span>
+                  </div>
+                  <span className="text-xs text-white/70 font-mono">02:14</span>
+                </div>
+
+                {/* Transcript turns */}
+                <div className="space-y-3 mb-5">
+                  <div className="flex gap-3">
+                    <div className="h-8 w-8 rounded-full bg-white/25 border border-white/30 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                      A
+                    </div>
+                    <div className="flex-1 text-sm text-white/95 leading-relaxed">Hi, I&apos;m calling about my policy renewal…</div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="h-8 w-8 rounded-full bg-voiceup-navy/35 border border-white/30 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                      B
+                    </div>
+                    <div className="flex-1 text-sm text-white/95 leading-relaxed">Sure — could you verify your policy number please?</div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="h-8 w-8 rounded-full bg-white/25 border border-white/30 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                      A
+                    </div>
+                    <div className="flex-1 text-sm text-white/95 leading-relaxed">
+                      It&apos;s 4471 2890
+                      <span className="inline-block w-0.5 h-4 bg-white ml-1 align-middle animate-pulse" aria-hidden="true" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer stats */}
+                <div className="pt-4 border-t border-white/20 flex items-center justify-between text-xs text-white/85">
+                  <div className="flex items-center gap-3">
+                    <span>
+                      <span className="font-semibold text-white">Positive</span> sentiment
+                    </span>
+                    <span className="h-3 w-px bg-white/30" />
+                    <span>English (US)</span>
+                  </div>
+                  <Globe2 className="h-3.5 w-3.5 text-white" />
+                </div>
+              </div>
+
+              {/* Floating mini data card — top-right (bright cyan to pop on the dark canvas) */}
+              <div
+                aria-hidden="true"
+                className="absolute -top-5 -right-3 sm:-right-5 bg-voiceup-skyblue/95 backdrop-blur-md border border-white/30 rounded-xl px-3 py-2 shadow-xl shadow-voiceup-skyblue/30 animate-float-soft"
+              >
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="h-3.5 w-3.5 text-white" />
+                  <span className="text-xs font-semibold text-white">Sentiment +0.82</span>
+                </div>
+              </div>
+
+              {/* Floating mini data card — bottom-left (glassy white) */}
+              <div
+                aria-hidden="true"
+                className="absolute -bottom-4 -left-3 sm:-left-5 bg-white/20 backdrop-blur-md border border-white/40 rounded-xl px-3 py-2 shadow-xl animate-float-soft"
+                style={{ animationDelay: '1.4s' }}
+              >
+                <div className="flex items-center gap-2">
+                  <Mic className="h-3.5 w-3.5 text-white" />
+                  <span className="text-xs font-semibold text-white">Real-time STT</span>
+                </div>
+              </div>
+
+              {/* Floating mini data card — middle-right (deep cyan / saturated) */}
+              <div
+                aria-hidden="true"
+                className="absolute top-1/2 -right-4 sm:-right-8 -translate-y-1/2 bg-voiceup-periwinkle/90 backdrop-blur-md border border-white/20 rounded-xl px-3 py-2 shadow-xl animate-float-soft hidden md:block"
+                style={{ animationDelay: '0.7s' }}
+              >
+                <div className="flex items-center gap-2">
+                  <Headphones className="h-3.5 w-3.5 text-white" />
+                  <span className="text-xs font-semibold text-white">Recording</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll indicator — white pill, navy/cyan icon */}
+        <a
+          href="#capabilities"
+          aria-label="Scroll down"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-xl text-voiceup-skyblue animate-bounce-down border border-white/50"
+        >
+          <ArrowDown className="h-5 w-5" />
+        </a>
+      </section>
+
+      {/* Trusted by strip */}
+      <section className="py-8 sm:py-10 bg-white border-y border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-xs sm:text-sm uppercase tracking-wide text-center text-gray-500 font-semibold mb-5">
+            Trusted by regulated, high-volume voice operations
           </p>
-          <Button
-            asChild
-            size="lg"
-            className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white px-8 py-4 text-lg rounded-full animate-fade-in"
-            style={{ animationDelay: '0.4s' }}
-          >
-            <Link to="/contact">Get Started</Link>
-          </Button>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white animate-bounce-down">
-          <ArrowDown className="h-6 w-6" />
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-10 text-voiceup-navy/70 font-semibold text-sm sm:text-base">
+            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">VIS</span>
+            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">Yes Bank</span>
+            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">TelcoOne</span>
+            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">NorthBPO</span>
+            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">CXForge</span>
+            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">OmniCloud</span>
+          </div>
         </div>
       </section>
 
-      {/* Platform Capabilities */}
-      <section ref={platformCapabilitiesRef} className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 to-white">
+      {/* Platform Capabilities (scrolljacking placards) */}
+      <section
+        ref={sectionRef}
+        className="py-20 sm:py-24 bg-gradient-to-br from-gray-50 to-white"
+        data-active={sectionInView ? 'true' : 'false'}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
+            <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-voiceup-skyblue/10 text-voiceup-skyblue text-xs sm:text-sm tracking-wide uppercase mb-3 font-semibold">
+              Platform capabilities
+            </p>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-voiceup-navy mb-4">
-              Platform Capabilities
+              Five products. Two solutions. One platform.
             </h2>
             <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover how our comprehensive voice automation platform transforms contact center operations
+              Hover the cards to explore each part of the VoiceUp stack — and dive into any product or solution for the full feature set.
             </p>
           </div>
 
-          <div
-            className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start"
-            data-active={platformCapabilitiesInView ? 'true' : 'false'}
-          >
-            {/* Left Side - Interactive Cards */}
+          <div className="grid lg:grid-cols-[1fr_1.05fr] gap-8 lg:gap-12 items-start">
+            {/* Left: creative placards with background images + per-card identity */}
             <div className="space-y-4">
-              {capabilities.map((capability) => {
-                const isActive = hoveredCapability === capability.id || (!hoveredCapability && capability.id === 1);
+              {capabilities.map((c) => {
+                const isActive = c.id === activeId;
+                const numberLabel = String(c.id).padStart(2, '0');
                 return (
-                  <div
-                    key={capability.id}
-                    className={`relative p-5 sm:p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 overflow-hidden ${
+                  <Link
+                    key={c.id}
+                    to={c.to}
+                    aria-label={`${c.title} — ${c.tagline}`}
+                    className={`group relative block rounded-2xl overflow-hidden transition-all duration-500 ${
                       isActive
-                        ? 'border-voiceup-skyblue bg-voiceup-skyblue text-white shadow-xl scale-[1.02]'
-                        : 'border-gray-200 bg-white text-voiceup-navy hover:border-voiceup-periwinkle'
+                        ? 'shadow-[0_20px_60px_-15px_rgba(0,168,224,0.45)] scale-[1.015]'
+                        : 'shadow-sm hover:shadow-xl hover:-translate-y-1'
                     }`}
-                    onMouseEnter={() => setHoveredCapability(capability.id)}
-                    onFocus={() => setHoveredCapability(capability.id)}
-                    tabIndex={0}
-                    role="button"
-                    aria-pressed={isActive}
+                    onMouseEnter={() => setActiveId(c.id)}
+                    onFocus={() => setActiveId(c.id)}
                   >
+                    {/* Background image — visible on active, faded on inactive */}
                     <div
-                      className={`absolute inset-0 bg-cover bg-center transition-opacity duration-500 ${
-                        isActive && platformCapabilitiesInView ? 'animate-slow-zoom' : ''
+                      aria-hidden="true"
+                      className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${
+                        isActive ? 'scale-110 animate-slow-zoom' : 'scale-100 group-hover:scale-105'
                       }`}
                       style={{
-                        backgroundImage: `url(${capability.backgroundImage})`,
-                        opacity: 0.15
+                        backgroundImage: `url(${c.backgroundImage})`,
+                        opacity: isActive ? 1 : 0.18,
                       }}
                     />
+
+                    {/* Color tint overlay — full on active, light on inactive */}
                     <div
-                      className={`absolute inset-0 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 transition-opacity duration-300 ${
-                        isActive ? 'opacity-100' : 'opacity-60'
+                      aria-hidden="true"
+                      className={`absolute inset-0 bg-gradient-to-br ${c.color} transition-opacity duration-500 ${
+                        isActive ? 'opacity-95' : 'opacity-0'
                       }`}
                     />
-                    <div className="relative z-10 flex items-center space-x-4">
-                      <div className={`p-3 rounded-lg transition-transform duration-300 ${
-                        isActive ? 'bg-white/20 scale-110' : 'bg-voiceup-skyblue text-white'
-                      }`}>
-                        {capability.icon}
+                    {/* Inactive: clean white surface with subtle warmth */}
+                    <div
+                      aria-hidden="true"
+                      className={`absolute inset-0 bg-white transition-opacity duration-500 ${
+                        isActive ? 'opacity-0' : 'opacity-90'
+                      }`}
+                    />
+
+                    {/* Active accent ring */}
+                    <div
+                      aria-hidden="true"
+                      className={`absolute inset-0 rounded-2xl ring-2 transition-all duration-500 ${
+                        isActive ? 'ring-voiceup-skyblue/60' : 'ring-transparent group-hover:ring-voiceup-skyblue/25'
+                      }`}
+                    />
+
+                    {/* Content */}
+                    <div className={`relative z-10 p-5 sm:p-6 transition-colors duration-500 ${isActive ? 'text-white' : 'text-voiceup-navy'}`}>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div
+                            className={`flex-shrink-0 rounded-xl transition-all duration-300 flex items-center justify-center h-12 w-12 sm:h-14 sm:w-14 ${
+                              isActive
+                                ? 'bg-white/20 backdrop-blur-md shadow-lg scale-110 text-white'
+                                : 'bg-voiceup-skyblue/10 text-voiceup-skyblue group-hover:scale-105'
+                            }`}
+                          >
+                            {c.icon}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span
+                                className={`text-xs font-mono font-bold transition-colors duration-300 ${
+                                  isActive ? 'text-white/70' : 'text-voiceup-skyblue'
+                                }`}
+                              >
+                                {numberLabel}
+                              </span>
+                              <span
+                                className={`text-[11px] uppercase tracking-wider font-semibold transition-colors duration-300 ${
+                                  isActive ? 'text-white/70' : 'text-gray-400'
+                                }`}
+                              >
+                                {c.badge}
+                              </span>
+                            </div>
+                            <h3 className="text-lg sm:text-xl font-semibold truncate">{c.title}</h3>
+                          </div>
+                        </div>
+                        <ArrowRight
+                          className={`h-5 w-5 flex-shrink-0 transition-all duration-300 ${
+                            isActive
+                              ? 'translate-x-1 text-white'
+                              : 'text-gray-400 group-hover:translate-x-1 group-hover:text-voiceup-skyblue'
+                          }`}
+                        />
                       </div>
-                      <h3 className="text-lg sm:text-xl font-semibold">{capability.title}</h3>
+
+                      {/* Tagline — slides in when active */}
+                      <div
+                        className={`overflow-hidden transition-all duration-500 ${
+                          isActive ? 'max-h-16 mt-3 opacity-100' : 'max-h-0 mt-0 opacity-0'
+                        }`}
+                      >
+                        <p className="text-sm sm:text-[15px] leading-relaxed text-white/90 pl-[60px] sm:pl-[72px]">
+                          {c.tagline}
+                        </p>
+                      </div>
+
+                      {/* Live indicator on active — only renders when section is on-screen */}
+                      {isActive && sectionInView && (
+                        <div className="absolute top-4 right-12 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/80">
+                          <span className="relative flex h-2 w-2">
+                            <span className="absolute inline-flex h-full w-full rounded-full bg-white/60 animate-ping" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+                          </span>
+                          Live
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
 
-            {/* Right Side - Content Display */}
+            {/* Right: rich sticky preview pane */}
             <div className="lg:sticky lg:top-24">
-              {selectedCapability && (
-                <div className="bg-white rounded-2xl shadow-2xl overflow-hidden animate-slide-in-right">
-                  <div className="relative h-56 sm:h-64 overflow-hidden">
-                    <img
-                      src={selectedCapability.image}
-                      alt={selectedCapability.title}
-                      loading="lazy"
-                      decoding="async"
-                      className={`w-full h-full object-cover ${platformCapabilitiesInView ? 'animate-slow-zoom' : ''}`}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-voiceup-navy/60 to-transparent"></div>
-                    <div className="absolute bottom-4 left-6 text-white">
-                      <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm inline-block mb-2">
-                        {selectedCapability.icon}
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-bold">{selectedCapability.title}</h3>
+              <div
+                key={selected.id}
+                className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-fade-in"
+              >
+                {/* Hero image with layered overlays */}
+                <div className="relative h-64 sm:h-72 overflow-hidden">
+                  <img
+                    src={selected.image}
+                    alt={selected.title}
+                    loading="lazy"
+                    decoding="async"
+                    className={`absolute inset-0 w-full h-full object-cover ${sectionInView ? 'animate-slow-zoom' : ''}`}
+                  />
+
+                  {/* Color theme overlay */}
+                  <div
+                    aria-hidden="true"
+                    className={`absolute inset-0 bg-gradient-to-br ${selected.color} opacity-55 mix-blend-multiply`}
+                  />
+                  {/* Bottom dark gradient for legibility */}
+                  <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-voiceup-navy via-voiceup-navy/30 to-transparent" />
+                  {/* Radial highlight */}
+                  <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.25),transparent_55%)]" />
+
+                  {/* Top-left: numbered badge */}
+                  <span className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-[11px] uppercase tracking-wider font-semibold">
+                    <span className="font-mono text-white/80">{String(selected.id).padStart(2, '0')}</span>
+                    <span className="h-1 w-1 rounded-full bg-white/60" />
+                    <span>{selected.badge}</span>
+                  </span>
+
+                  {/* Top-right: animated mini waveform */}
+                  <div aria-hidden="true" className="absolute top-4 right-4 flex items-end gap-[3px] h-5">
+                    {[...Array(7)].map((_, i) => {
+                      const h = 4 + Math.abs(Math.sin(i * 0.7)) * 16;
+                      return (
+                        <span
+                          key={`pv-wave-${i}`}
+                          className="block w-[3px] rounded-t-sm bg-white/80"
+                          style={{
+                            height: `${h}px`,
+                            animation: sectionInView ? `wave-pulse ${1.2 + (i % 3) * 0.2}s ease-in-out infinite` : undefined,
+                            animationDelay: `${i * 0.08}s`,
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Bottom-left: icon panel + title */}
+                  <div className="absolute bottom-5 left-5 right-5 text-white flex items-end gap-3">
+                    <div className="p-3 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 shadow-lg [&_svg]:h-7 [&_svg]:w-7">
+                      {selected.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] uppercase tracking-wider text-white/75 mb-1 inline-flex items-center gap-1.5">
+                        <Sparkles className="h-3 w-3" />
+                        {selected.tagline}
+                      </p>
+                      <h3 className="text-2xl sm:text-3xl font-bold drop-shadow-md leading-tight">{selected.title}</h3>
                     </div>
                   </div>
-                  <div className="p-6 sm:p-8">
-                    <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6">
-                      {selectedCapability.content}
-                    </p>
-                    <Button
-                      asChild
-                      className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full"
-                    >
-                      <Link to="/solutions">Learn More</Link>
+                </div>
+
+                {/* Body */}
+                <div className="p-6 sm:p-8">
+                  <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-5">{selected.content}</p>
+
+                  {/* Highlight pills */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {selected.highlights.map((h) => (
+                      <span
+                        key={h}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-voiceup-skyblue/10 text-voiceup-skyblue text-xs font-medium"
+                      >
+                        <Check className="h-3 w-3" />
+                        {h}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <Button asChild className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full">
+                      <Link to={selected.to}>Learn more <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                    </Button>
+                    <Button asChild variant="outline" className="border-voiceup-skyblue text-voiceup-skyblue hover:bg-voiceup-skyblue hover:text-white rounded-full">
+                      <Link to="/demos#request">See a demo</Link>
                     </Button>
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* Progress indicator under the preview */}
+              <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                <span className="font-mono">
+                  {String(capabilities.findIndex((c) => c.id === activeId) + 1).padStart(2, '0')} / {String(capabilities.length).padStart(2, '0')}
+                </span>
+                <div className="flex-1 mx-4 h-1 rounded-full bg-gray-200 overflow-hidden">
+                  <div
+                    className="h-full bg-voiceup-skyblue transition-all duration-500"
+                    style={{ width: `${((capabilities.findIndex((c) => c.id === activeId) + 1) / capabilities.length) * 100}%` }}
+                  />
+                </div>
+                <span className="uppercase tracking-wider text-gray-400">Capabilities</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Interactive Platform Experience */}
-      <section
-        ref={circularMenuRef}
-        className="py-20 sm:py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden"
-        data-active={circularMenuInView ? 'true' : 'false'}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
-              Interactive Platform Experience
-            </h2>
-            <p className="text-base sm:text-xl text-white/90 max-w-3xl mx-auto">
-              Experience our AI-powered voice technology through an immersive interactive journey
+      {/* Platform highlights */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-voiceup-navy mb-3">Built for enterprise voice, not generic chatbots</h2>
+            <p className="text-base text-gray-600 max-w-2xl mx-auto">
+              VoiceUp is designed around real telephony: streaming audio, relay integration, multi-tenant configuration, and production-grade resilience.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {capabilities.map((capability, index) => (
-              <div
-                key={capability.id}
-                className="group relative bg-white/10 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-white/20 hover:border-cyan-400/50 transition-colors duration-300 overflow-hidden"
-                style={{
-                  animation: circularMenuInView ? `fade-up 0.8s ease-out ${Math.min(index, 5) * 0.15}s both` : undefined
-                }}
-              >
-                <div
-                  className={`absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity duration-500 ${circularMenuInView ? 'animate-slow-zoom' : ''}`}
-                  style={{ backgroundImage: `url(${capability.backgroundImage})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-cyan-600/30 transition-opacity duration-300" />
-
-                <div className="relative z-10">
-                  <div className={`inline-flex p-4 rounded-xl bg-gradient-to-r ${capability.color} text-white mb-6 transition-transform duration-300 group-hover:scale-110`}>
-                    {capability.icon}
-                  </div>
-
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors duration-300">
-                    {capability.title}
-                  </h3>
-
-                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
-                    {capability.content.slice(0, 120)}...
-                  </p>
-
-                  <div className="mt-6 flex items-center text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
-                    <span className="text-sm font-medium">Explore Feature</span>
-                    <ArrowDown className="ml-2 h-4 w-4 rotate-[-90deg] group-hover:translate-x-1 transition-transform duration-300" />
-                  </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {platformHighlights.map((h) => (
+              <div key={h.title} className="rounded-2xl border border-gray-100 bg-gradient-to-b from-white to-gray-50 p-6 hover:shadow-lg transition-shadow">
+                <div className="h-11 w-11 rounded-lg bg-voiceup-skyblue/10 text-voiceup-skyblue flex items-center justify-center mb-4">
+                  {h.icon}
                 </div>
+                <h3 className="text-lg font-semibold text-voiceup-navy mb-2">{h.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{h.body}</p>
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Central Tech Hub */}
-          <div className="mt-16 sm:mt-20 text-center">
-            <div className={`inline-flex items-center justify-center w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full shadow-2xl shadow-cyan-500/25 ${circularMenuInView ? 'animate-pulse' : ''}`}>
-              <div className="text-white text-center">
-                <BrainCircuit className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-2" />
-                <div className="text-sm font-bold">AI Core</div>
-              </div>
-            </div>
-
-            <p className="mt-8 text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4">
-              All capabilities seamlessly integrated through our unified AI platform
+      {/* About teaser */}
+      <section className="py-16 sm:py-20 bg-voiceup-navy text-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[1fr_1.3fr] gap-8 items-center">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-voiceup-skyblue font-semibold mb-2">About VoiceUp</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-3">
+              100+ years of voice & enterprise experience
+            </h2>
+          </div>
+          <div className="space-y-4 text-base sm:text-lg text-white/85 leading-relaxed">
+            <p>
+              VoiceUp is an enterprise technology company specializing in the integration of telephony and artificial intelligence. We serve organizations in regulated and high-volume sectors where reliability, compliance, and scale are essential.
             </p>
+            <Button asChild variant="outline" className="bg-transparent border-white/40 text-white hover:bg-white hover:text-voiceup-navy rounded-full px-6">
+              <Link to="/about">More about us <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Demo Video Section */}
-      <section
-        ref={videoSectionRef}
-        className="py-16 sm:py-20 bg-voiceup-navy relative overflow-hidden flex items-center"
-        data-active={videoInView ? 'true' : 'false'}
-      >
-        {/* Two lightweight pattern layers (was five) — kept conditional on view to save GPU */}
-        {videoInView && (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-            <div
-              className="absolute -inset-[400px] opacity-15 animate-bg-float-slow"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z' fill='%2360A5FA' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-                transform: 'rotate(45deg) scale(6)'
-              }}
-            />
-            <div
-              className="absolute -inset-[500px] opacity-10 animate-bg-float-slower"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2360A5FA' fill-opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='2'/%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3Ccircle cx='60' cy='20' r='1'/%3E%3Ccircle cx='20' cy='60' r='1'/%3E%3Ccircle cx='60' cy='60' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
-                transform: 'rotate(-30deg) scale(7)'
-              }}
-            />
-          </div>
-        )}
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
-          <div className={`transition-all duration-700 mb-12 ${videoInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-              See How Enterprises Use VoiceUp
-            </h2>
-            <p className="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto">
-              Watch real-world implementations and discover the transformative impact of our voice automation platform
-            </p>
-          </div>
-
-          <div
-            ref={videoFrameRef}
-            className="relative mx-auto will-change-transform video-scaler"
-            style={{ maxWidth: '900px' }}
-          >
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-              <div className="relative bg-gradient-to-br from-voiceup-skyblue to-voiceup-periwinkle p-2 sm:p-3 rounded-3xl">
-                <div className="bg-gradient-to-br from-gray-900 to-voiceup-navy rounded-2xl overflow-hidden">
-                  <div className="aspect-video relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="relative w-full h-full">
-                          {/* Central AI Brain */}
-                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div className={`w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center shadow-lg ${videoInView ? 'animate-pulse' : ''}`}>
-                              <Bot className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
-                            </div>
-                          </div>
-
-                          {/* Orbiting Data Points (6, was 8). Pause when section off-screen. */}
-                          {videoInView && [...Array(6)].map((_, i) => {
-                            const angle = (i * 60 * Math.PI) / 180;
-                            return (
-                              <div
-                                key={`orbit-${i}`}
-                                className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-cyan-400 rounded-full"
-                                style={{
-                                  left: `calc(50% + ${Math.cos(angle) * 100}px - 8px)`,
-                                  top: `calc(50% + ${Math.sin(angle) * 100}px - 8px)`,
-                                  animation: `orbit ${10 + i}s linear infinite`,
-                                  animationDelay: `${i * 0.4}s`
-                                }}
-                              />
-                            );
-                          })}
-
-                          {/* Data Streams (8, was 12). Deterministic delays — no Math.random. */}
-                          {videoInView && [...Array(8)].map((_, i) => (
-                            <div
-                              key={`stream-${i}`}
-                              className="absolute w-1 h-10 bg-gradient-to-b from-green-400 to-transparent rounded-full"
-                              style={{
-                                left: `${12 + i * 10}%`,
-                                top: `${22 + (i % 3) * 22}%`,
-                                animation: `float ${3 + (i % 3)}s ease-in-out infinite`,
-                                animationDelay: `${i * 0.15}s`
-                              }}
-                            />
-                          ))}
-
-                          {/* Pulsing Connection Lines (4, was 6) */}
-                          {videoInView && (
-                            <svg className="absolute inset-0 w-full h-full opacity-60" aria-hidden="true">
-                              {[...Array(4)].map((_, i) => (
-                                <line
-                                  key={`line-${i}`}
-                                  x1="50%"
-                                  y1="50%"
-                                  x2={`${50 + Math.cos((i * 90 * Math.PI) / 180) * 30}%`}
-                                  y2={`${50 + Math.sin((i * 90 * Math.PI) / 180) * 30}%`}
-                                  stroke="rgba(99, 102, 241, 0.6)"
-                                  strokeWidth="2"
-                                  strokeDasharray="5,5"
-                                  className="animate-pulse"
-                                  style={{ animationDelay: `${i * 0.4}s` }}
-                                />
-                              ))}
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Voice Waveform — 16 bars (was 25), deterministic heights */}
-                      {videoInView && (
-                        <div className="absolute bottom-16 sm:bottom-20 left-4 sm:left-8 right-4 sm:right-8 flex items-end justify-center space-x-1">
-                          {[...Array(16)].map((_, i) => {
-                            const h = 10 + Math.abs(Math.sin(i * 0.6)) * 22;
-                            return (
-                              <div
-                                key={`wave-${i}`}
-                                className="bg-gradient-to-t from-voiceup-skyblue to-cyan-400 rounded-t-sm"
-                                style={{
-                                  width: '3px',
-                                  height: `${h}px`,
-                                  animation: `pulse ${1 + (i % 4) * 0.2}s ease-in-out infinite`,
-                                  animationDelay: `${i * 0.06}s`
-                                }}
-                              />
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      {/* Floating AI indicators */}
-                      <div className="absolute top-4 sm:top-6 left-4 sm:left-6 animate-fade-in">
-                        <div className="bg-black/60 rounded-lg p-2 backdrop-blur-sm text-cyan-300 text-xs">
-                          <Mic className="h-4 w-4 inline mr-1" />
-                          Real-time Processing
-                        </div>
-                      </div>
-
-                      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-                        <div className="bg-black/60 rounded-lg p-2 backdrop-blur-sm text-green-300 text-xs">
-                          <BarChart3 className="h-4 w-4 inline mr-1" />
-                          AI Analytics
-                        </div>
-                      </div>
-
-                      <div className="absolute bottom-24 sm:bottom-32 right-4 sm:right-6 animate-fade-in" style={{ animationDelay: '1.2s' }}>
-                        <div className="bg-black/60 rounded-lg p-2 backdrop-blur-sm text-purple-300 text-xs">
-                          <Bot className="h-4 w-4 inline mr-1" />
-                          Neural Network
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Play button overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors duration-300 cursor-pointer group">
-                      <div className="relative">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 relative z-10">
-                          <svg className="w-9 h-9 sm:w-10 sm:h-10 text-voiceup-navy ml-1" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </div>
-                        {videoInView && (
-                          <>
-                            <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 border-4 border-white/50 rounded-full animate-ping"></div>
-                            <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 border-2 border-cyan-400/50 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Progress bar mockup */}
-                    <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-black/60 rounded-lg p-2 sm:p-3 backdrop-blur-sm">
-                      <div className="flex items-center space-x-2 sm:space-x-3 text-white text-xs sm:text-sm">
-                        <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="font-mono">2:05</span>
-                        <div className="flex-1 bg-gray-600 rounded-full h-1.5 sm:h-2 relative overflow-hidden">
-                          <div className="bg-gradient-to-r from-voiceup-skyblue to-green-400 h-full rounded-full w-1/3 relative">
-                            <div className="absolute inset-0 bg-white/30 rounded-full animate-pulse"></div>
-                          </div>
-                        </div>
-                        <span className="font-mono">5:30</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Final CTA */}
+      <section className="py-16 sm:py-20 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-chartblue text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Ready to put voice AI into production?</h2>
+          <p className="text-base sm:text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+            Tell us what you want to see and we'll line up a tailored walkthrough with our engineers — or get a custom quote for your deployment.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button asChild className="bg-white text-voiceup-navy hover:bg-voiceup-navy hover:text-white rounded-full px-6">
+              <Link to="/demos#request">Request a demo</Link>
+            </Button>
+            <Button asChild variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-voiceup-navy rounded-full px-6">
+              <Link to="/pricing">Talk to sales</Link>
+            </Button>
           </div>
         </div>
       </section>

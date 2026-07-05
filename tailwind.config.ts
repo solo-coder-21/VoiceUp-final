@@ -53,13 +53,26 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// VoiceUp Brand Colors
+				// VoiceUp Brand Colors (mapped to Figma design system)
 				voiceup: {
-					navy: '#232E4A',
-					skyblue: '#4C8CC0',
-					blush: '#FBEBE3',
-					lavender: '#DDB9CA',
-					periwinkle: '#667BAB'
+					// Ink / text — used everywhere "navy" was previously
+					navy: '#0F172A',
+					// Primary brand cyan-blue — the dominant Figma accent (logo, buttons, headings)
+					skyblue: '#00A8E0',
+					// Secondary deeper cyan for hovers and gradient stops
+					periwinkle: '#0095CC',
+					// Soft pale accent (chip / hover surface)
+					lavender: '#E9E4FF',
+					// Cool pale surface for alternating backgrounds
+					blush: '#F1F5F9',
+					// Extras available for charts / decorative use
+					chartblue: '#5B7BD8',
+					ink: '#0F172A',
+					slate: '#475569',
+					cloud: '#F8FAFC',
+					// Soft pastel accents — used sparingly for chat-bubble tags & icon variation
+					mint: '#D6F0E4',
+					peach: '#FFE4D6',
 				}
 			},
 			fontFamily: {
