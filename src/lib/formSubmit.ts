@@ -3,22 +3,21 @@
  *
  * How it works:
  *   1. Client POSTs a JSON payload (including `access_key`) to https://api.web3forms.com/submit
- *   2. Web3Forms forwards the message as a real email to the address associated with the access key
- *      (in our case: dhruvgupta21304@gmail.com).
+ *   2. Web3Forms forwards the message as a real email to the address associated with the access key.
  *   3. Response is JSON: { success: true, message: "..." } on success.
  *
  * Notes:
  *   - No user email client involvement, no "activate this form" step per-recipient.
  *   - The access key is safe to expose in the frontend (Web3Forms is designed for this).
  *   - Free tier: 250 submissions/month.
- *   - Manage at https://web3forms.com/  (log in with the email above).
+ *   - Manage recipient forwarding at https://web3forms.com/ (log in with the account owner's email).
  */
 
 /** Public access key — safe to expose in frontend bundles. */
 const WEB3FORMS_ACCESS_KEY = '0d2c99ca-7c7e-4c72-ac59-fa9c81f67d97';
 
 /** Displayed in the mailto fallback and any UI hints. Actual delivery is controlled by the access key. */
-const TO_EMAIL = 'dhruvgupta21304@gmail.com';
+const TO_EMAIL = 'info@voiceup.ai';
 
 export const isDirectEmailConfigured = true;
 
