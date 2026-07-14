@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Mail, MapPin, Linkedin, Twitter, Github } from 'lucide-react';
+import { isPricingEnabled } from '@/lib/featureFlags';
 
 const footerCols = [
   {
@@ -21,9 +22,10 @@ const footerCols = [
   },
   {
     heading: 'Company',
+    // Pricing link is filtered out at runtime when the feature flag is off
     links: [
       { to: '/demos', label: 'Demos' },
-      { to: '/pricing', label: 'Pricing' },
+      ...(isPricingEnabled ? [{ to: '/pricing', label: 'Pricing' }] : []),
       { to: '/customers', label: 'Customers & Partners' },
       { to: '/about', label: 'About Us' },
     ],

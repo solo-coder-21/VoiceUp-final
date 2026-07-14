@@ -20,6 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { cardAccents } from '@/lib/cardAccents';
 
 type Capability = {
   id: number;
@@ -163,6 +164,95 @@ const Index = () => {
 
   const selected = capabilities.find((c) => c.id === activeId) ?? capabilities[0];
 
+  // The rich preview panel used in TWO places:
+  //   1. Desktop: the sticky right-hand column (uses `selected`).
+  //   2. Mobile: inline right below whichever placard is currently active — so users
+  //      don't have to scroll to the bottom of the placard list to see product details.
+  const renderPreview = (capability: Capability) => (
+    <div
+      key={capability.id}
+      className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-fade-in"
+    >
+      {/* Hero image with layered overlays */}
+      <div className="relative h-64 sm:h-72 overflow-hidden">
+        <img
+          src={capability.image}
+          alt={capability.title}
+          loading="lazy"
+          decoding="async"
+          className={`absolute inset-0 w-full h-full object-cover ${sectionInView ? 'animate-slow-zoom' : ''}`}
+        />
+        <div
+          aria-hidden="true"
+          className={`absolute inset-0 bg-gradient-to-br ${capability.color} opacity-55 mix-blend-multiply`}
+        />
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-voiceup-navy via-voiceup-navy/30 to-transparent" />
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.25),transparent_55%)]" />
+
+        <span className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-[11px] uppercase tracking-wider font-semibold">
+          <span className="font-mono text-white/80">{String(capability.id).padStart(2, '0')}</span>
+          <span className="h-1 w-1 rounded-full bg-white/60" />
+          <span>{capability.badge}</span>
+        </span>
+
+        <div aria-hidden="true" className="absolute top-4 right-4 flex items-end gap-[3px] h-5">
+          {[...Array(7)].map((_, i) => {
+            const h = 4 + Math.abs(Math.sin(i * 0.7)) * 16;
+            return (
+              <span
+                key={`pv-wave-${i}`}
+                className="block w-[3px] rounded-t-sm bg-white/80"
+                style={{
+                  height: `${h}px`,
+                  animation: sectionInView ? `wave-pulse ${1.2 + (i % 3) * 0.2}s ease-in-out infinite` : undefined,
+                  animationDelay: `${i * 0.08}s`,
+                }}
+              />
+            );
+          })}
+        </div>
+
+        <div className="absolute bottom-5 left-5 right-5 text-white flex items-end gap-3">
+          <div className="p-3 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 shadow-lg [&_svg]:h-7 [&_svg]:w-7">
+            {capability.icon}
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-wider text-white/75 mb-1 inline-flex items-center gap-1.5">
+              <Sparkles className="h-3 w-3" />
+              {capability.tagline}
+            </p>
+            <h3 className="text-2xl sm:text-3xl font-bold drop-shadow-md leading-tight">{capability.title}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6 sm:p-8">
+        <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-5">{capability.content}</p>
+
+        <div className="flex flex-wrap gap-2 mb-6">
+          {capability.highlights.map((h) => (
+            <span
+              key={h}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-voiceup-skyblue/10 text-voiceup-skyblue text-xs font-medium"
+            >
+              <Check className="h-3 w-3" />
+              {h}
+            </span>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <Button asChild className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full">
+            <Link to={capability.to}>Learn more <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
+          <Button asChild variant="outline" className="border-voiceup-skyblue text-voiceup-skyblue hover:bg-voiceup-skyblue hover:text-white rounded-full">
+            <Link to="/request-demo">See a demo</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -253,7 +343,7 @@ const Index = () => {
                   size="lg"
                   className="bg-white text-voiceup-skyblue hover:bg-voiceup-navy hover:text-white px-7 py-5 text-base rounded-full shadow-xl shadow-voiceup-navy/20 font-semibold"
                 >
-                  <Link to="/demos#request">
+                  <Link to="/request-demo">
                     Request a Demo <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -390,23 +480,6 @@ const Index = () => {
         </a>
       </section>
 
-      {/* Trusted by strip */}
-      <section className="py-8 sm:py-10 bg-white border-y border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs sm:text-sm uppercase tracking-wide text-center text-gray-500 font-semibold mb-5">
-            Trusted by regulated, high-volume voice operations
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-10 text-voiceup-navy/70 font-semibold text-sm sm:text-base">
-            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">VIS</span>
-            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">Yes Bank</span>
-            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">TelcoOne</span>
-            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">NorthBPO</span>
-            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">CXForge</span>
-            <span className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-100">OmniCloud</span>
-          </div>
-        </div>
-      </section>
-
       {/* Platform Capabilities (scrolljacking placards) */}
       <section
         ref={sectionRef}
@@ -433,17 +506,19 @@ const Index = () => {
                 const isActive = c.id === activeId;
                 const numberLabel = String(c.id).padStart(2, '0');
                 return (
-                  <Link
-                    key={c.id}
-                    to={c.to}
-                    aria-label={`${c.title} — ${c.tagline}`}
-                    className={`group relative block rounded-2xl overflow-hidden transition-all duration-500 ${
+                <React.Fragment key={c.id}>
+                  <button
+                    type="button"
+                    aria-label={`Preview ${c.title} — ${c.tagline}`}
+                    aria-pressed={isActive}
+                    className={`group relative block w-full text-left rounded-2xl overflow-hidden transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-voiceup-skyblue ${
                       isActive
                         ? 'shadow-[0_20px_60px_-15px_rgba(0,168,224,0.45)] scale-[1.015]'
                         : 'shadow-sm hover:shadow-xl hover:-translate-y-1'
                     }`}
                     onMouseEnter={() => setActiveId(c.id)}
                     onFocus={() => setActiveId(c.id)}
+                    onClick={() => setActiveId(c.id)}
                   >
                     {/* Background image — visible on active, faded on inactive */}
                     <div
@@ -544,104 +619,23 @@ const Index = () => {
                         </div>
                       )}
                     </div>
-                  </Link>
+                  </button>
+
+                  {/* MOBILE ONLY: inline preview shown right below the active card so users
+                       don't have to scroll to the bottom of the list to see product details. */}
+                  {isActive && (
+                    <div className="lg:hidden">
+                      {renderPreview(c)}
+                    </div>
+                  )}
+                </React.Fragment>
                 );
               })}
             </div>
 
-            {/* Right: rich sticky preview pane */}
-            <div className="lg:sticky lg:top-24">
-              <div
-                key={selected.id}
-                className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-fade-in"
-              >
-                {/* Hero image with layered overlays */}
-                <div className="relative h-64 sm:h-72 overflow-hidden">
-                  <img
-                    src={selected.image}
-                    alt={selected.title}
-                    loading="lazy"
-                    decoding="async"
-                    className={`absolute inset-0 w-full h-full object-cover ${sectionInView ? 'animate-slow-zoom' : ''}`}
-                  />
-
-                  {/* Color theme overlay */}
-                  <div
-                    aria-hidden="true"
-                    className={`absolute inset-0 bg-gradient-to-br ${selected.color} opacity-55 mix-blend-multiply`}
-                  />
-                  {/* Bottom dark gradient for legibility */}
-                  <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-voiceup-navy via-voiceup-navy/30 to-transparent" />
-                  {/* Radial highlight */}
-                  <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.25),transparent_55%)]" />
-
-                  {/* Top-left: numbered badge */}
-                  <span className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-[11px] uppercase tracking-wider font-semibold">
-                    <span className="font-mono text-white/80">{String(selected.id).padStart(2, '0')}</span>
-                    <span className="h-1 w-1 rounded-full bg-white/60" />
-                    <span>{selected.badge}</span>
-                  </span>
-
-                  {/* Top-right: animated mini waveform */}
-                  <div aria-hidden="true" className="absolute top-4 right-4 flex items-end gap-[3px] h-5">
-                    {[...Array(7)].map((_, i) => {
-                      const h = 4 + Math.abs(Math.sin(i * 0.7)) * 16;
-                      return (
-                        <span
-                          key={`pv-wave-${i}`}
-                          className="block w-[3px] rounded-t-sm bg-white/80"
-                          style={{
-                            height: `${h}px`,
-                            animation: sectionInView ? `wave-pulse ${1.2 + (i % 3) * 0.2}s ease-in-out infinite` : undefined,
-                            animationDelay: `${i * 0.08}s`,
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-
-                  {/* Bottom-left: icon panel + title */}
-                  <div className="absolute bottom-5 left-5 right-5 text-white flex items-end gap-3">
-                    <div className="p-3 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 shadow-lg [&_svg]:h-7 [&_svg]:w-7">
-                      {selected.icon}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[11px] uppercase tracking-wider text-white/75 mb-1 inline-flex items-center gap-1.5">
-                        <Sparkles className="h-3 w-3" />
-                        {selected.tagline}
-                      </p>
-                      <h3 className="text-2xl sm:text-3xl font-bold drop-shadow-md leading-tight">{selected.title}</h3>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Body */}
-                <div className="p-6 sm:p-8">
-                  <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-5">{selected.content}</p>
-
-                  {/* Highlight pills */}
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {selected.highlights.map((h) => (
-                      <span
-                        key={h}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-voiceup-skyblue/10 text-voiceup-skyblue text-xs font-medium"
-                      >
-                        <Check className="h-3 w-3" />
-                        {h}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-wrap gap-3">
-                    <Button asChild className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full">
-                      <Link to={selected.to}>Learn more <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                    </Button>
-                    <Button asChild variant="outline" className="border-voiceup-skyblue text-voiceup-skyblue hover:bg-voiceup-skyblue hover:text-white rounded-full">
-                      <Link to="/demos#request">See a demo</Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
+            {/* DESKTOP ONLY: rich sticky preview pane */}
+            <div className="hidden lg:block lg:sticky lg:top-24">
+              {renderPreview(selected)}
 
               {/* Progress indicator under the preview */}
               <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
@@ -666,59 +660,69 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-voiceup-navy mb-3">Built for enterprise voice, not generic chatbots</h2>
-            <p className="text-base text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base text-gray-600 max-w-3xl mx-auto text-pretty">
               VoiceUp is designed around real telephony: streaming audio, relay integration, multi-tenant configuration, and production-grade resilience.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {platformHighlights.map((h) => (
-              <div key={h.title} className="rounded-2xl border border-gray-100 bg-gradient-to-b from-white to-gray-50 p-6 hover:shadow-lg transition-shadow">
-                <div className="h-11 w-11 rounded-lg bg-voiceup-skyblue/10 text-voiceup-skyblue flex items-center justify-center mb-4">
-                  {h.icon}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+            {platformHighlights.map((h, i) => {
+              const a = cardAccents[i % cardAccents.length];
+              const number = String(i + 1).padStart(2, '0');
+              return (
+                <div
+                  key={h.title}
+                  className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div className={`h-1 ${a.strip}`} />
+                  <div
+                    aria-hidden="true"
+                    className={`absolute -top-12 -right-12 h-32 w-32 rounded-full ${a.blob} opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-500`}
+                  />
+                  <div className="relative p-5 sm:p-6 flex flex-col items-center text-center">
+                    <div
+                      className={`h-12 w-12 rounded-xl ${a.badge} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300 mb-3`}
+                    >
+                      {h.icon}
+                    </div>
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-gray-400 mb-1">
+                      Highlight {number}
+                    </p>
+                    <h3 className="text-base sm:text-[17px] font-bold text-voiceup-navy leading-snug mb-2">
+                      {h.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">{h.body}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-voiceup-navy mb-2">{h.title}</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">{h.body}</p>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* About teaser — cyan gradient panel with a floating white card so it doesn't merge with the navy footer */}
+      <section className="py-16 sm:py-20 bg-gradient-to-br from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-skyblue relative overflow-hidden">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_55%)]" />
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(15,23,42,0.15),transparent_55%)]" />
+
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div className="p-8 sm:p-10 lg:p-12 grid lg:grid-cols-[1fr_1.3fr] gap-8 lg:gap-12 items-center">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-voiceup-skyblue font-semibold mb-2">About VoiceUp</p>
+                <h2 className="text-3xl sm:text-4xl font-bold text-voiceup-navy">
+                  100+ years of voice &amp; enterprise experience
+                </h2>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* About teaser */}
-      <section className="py-16 sm:py-20 bg-voiceup-navy text-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[1fr_1.3fr] gap-8 items-center">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-voiceup-skyblue font-semibold mb-2">About VoiceUp</p>
-            <h2 className="text-3xl sm:text-4xl font-bold mb-3">
-              100+ years of voice & enterprise experience
-            </h2>
-          </div>
-          <div className="space-y-4 text-base sm:text-lg text-white/85 leading-relaxed">
-            <p>
-              VoiceUp is an enterprise technology company specializing in the integration of telephony and artificial intelligence. We serve organizations in regulated and high-volume sectors where reliability, compliance, and scale are essential.
-            </p>
-            <Button asChild variant="outline" className="bg-transparent border-white/40 text-white hover:bg-white hover:text-voiceup-navy rounded-full px-6">
-              <Link to="/about">More about us <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-16 sm:py-20 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-chartblue text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Ready to put voice AI into production?</h2>
-          <p className="text-base sm:text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-            Tell us what you want to see and we'll line up a tailored walkthrough with our engineers — or get a custom quote for your deployment.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button asChild className="bg-white text-voiceup-navy hover:bg-voiceup-navy hover:text-white rounded-full px-6">
-              <Link to="/demos#request">Request a demo</Link>
-            </Button>
-            <Button asChild variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-voiceup-navy rounded-full px-6">
-              <Link to="/pricing">Talk to sales</Link>
-            </Button>
+              <div className="space-y-5 text-base sm:text-lg text-gray-700 leading-relaxed">
+                <p>
+                  VoiceUp is an enterprise technology company specializing in the integration of telephony and artificial intelligence. We serve organizations in regulated and high-volume sectors where reliability, compliance, and scale are essential.
+                </p>
+                <Button asChild className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full px-6">
+                  <Link to="/about">More about us <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

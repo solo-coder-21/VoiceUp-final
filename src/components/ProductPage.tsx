@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
+import SectionIndicator from '@/components/SectionIndicator';
+import { cardAccents } from '@/lib/cardAccents';
 import {
   ArrowRight,
   Sparkles,
@@ -50,22 +52,9 @@ const iconForTitle = (title: string): React.ReactNode => {
   return <Sparkles className="h-5 w-5" />;
 };
 
-// Six visual variants that cycle across feature cards. Keeps cyan as primary while sprinkling
-// chart-blue, deep-cyan, and warmer pastels for variety — the same palette philosophy the
-// user asked for: vibrant primary + occasional warm accent.
-const featureAccents: Array<{
-  strip: string;
-  badge: string;
-  dot: string;
-  blob: string;
-}> = [
-  { strip: 'bg-voiceup-skyblue', badge: 'bg-voiceup-skyblue text-white', dot: 'bg-voiceup-skyblue', blob: 'bg-voiceup-skyblue' },
-  { strip: 'bg-voiceup-chartblue', badge: 'bg-voiceup-chartblue text-white', dot: 'bg-voiceup-chartblue', blob: 'bg-voiceup-chartblue' },
-  { strip: 'bg-voiceup-periwinkle', badge: 'bg-voiceup-periwinkle text-white', dot: 'bg-voiceup-periwinkle', blob: 'bg-voiceup-periwinkle' },
-  { strip: 'bg-voiceup-lavender', badge: 'bg-voiceup-lavender text-voiceup-navy', dot: 'bg-voiceup-chartblue', blob: 'bg-voiceup-chartblue' },
-  { strip: 'bg-voiceup-navy', badge: 'bg-voiceup-navy text-white', dot: 'bg-voiceup-navy', blob: 'bg-voiceup-navy' },
-  { strip: 'bg-voiceup-blush', badge: 'bg-voiceup-blush text-voiceup-navy', dot: 'bg-voiceup-skyblue', blob: 'bg-voiceup-skyblue' },
-];
+// Feature cards use the shared cardAccents cycle so they stay consistent with placard grids
+// on other pages (About, Pricing, Homepage highlights).
+const featureAccents = cardAccents;
 
 export type FeatureGroup = {
   title: string;
@@ -108,12 +97,17 @@ const ProductPage: React.FC<ProductPageProps> = ({
   useCases,
   why,
   insightsTable,
-  ctaTitle = 'Ready to see it in action?',
-  ctaBody = 'Request a demo, pilot deployment, or architecture review tailored to your industry and compliance requirements.',
+  // ctaTitle/ctaBody are still accepted by the type for backward compatibility
+  // but not rendered — sky-blue CTA banner was removed per design update.
 }) => {
+  // Trigger for the floating section indicator — the hero eyebrow acts as the sentinel.
+  const eyebrowRef = useRef<HTMLParagraphElement>(null);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+
+      <SectionIndicator eyebrow={eyebrow} triggerRef={eyebrowRef} />
 
       {/* Hero */}
       <section className="relative pt-28 sm:pt-32 pb-16 sm:pb-20 overflow-hidden">
@@ -124,21 +118,18 @@ const ProductPage: React.FC<ProductPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-[1fr_auto] gap-10 items-center">
             <div className="text-white">
-              <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs sm:text-sm tracking-wide uppercase mb-5">
+              <p ref={eyebrowRef} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs sm:text-sm tracking-wide uppercase mb-5">
                 {eyebrow}
               </p>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
                 {title}
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-white/85 max-w-3xl leading-relaxed">
+              <p className="text-base sm:text-lg lg:text-xl text-white/85 leading-relaxed">
                 {tagline}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-8">
                 <Button asChild className="bg-voiceup-skyblue hover:bg-white hover:text-voiceup-navy text-white rounded-full px-6">
-                  <Link to="/demos#request">Request a demo <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                </Button>
-                <Button asChild variant="outline" className="bg-transparent border-white/40 text-white hover:bg-white hover:text-voiceup-navy rounded-full px-6">
-                  <Link to="/pricing">Talk to sales</Link>
+                  <Link to="/request-demo">Request a demo <ArrowRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
               </div>
             </div>
@@ -149,11 +140,20 @@ const ProductPage: React.FC<ProductPageProps> = ({
         </div>
       </section>
 
-      {/* Overview */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-voiceup-navy mb-6">Product overview</h2>
-          <div className="space-y-4 text-base sm:text-lg text-gray-700 leading-relaxed">
+      {/* Overview — editorial single-column layout on white, wide reading measure.
+          Header block (eyebrow + heading + hairline) is centered; body stays wide. */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-14">
+            <p className="text-xs uppercase tracking-[0.25em] text-voiceup-skyblue font-semibold mb-4">
+              Overview
+            </p>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-voiceup-navy leading-[1.05] text-balance">
+              Product overview
+            </h2>
+            <div aria-hidden="true" className="mx-auto mt-8 h-px w-20 bg-voiceup-skyblue" />
+          </div>
+          <div className="space-y-6 text-lg sm:text-xl text-gray-700 leading-[1.75] text-pretty">
             {overview.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -176,12 +176,18 @@ const ProductPage: React.FC<ProductPageProps> = ({
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-voiceup-navy mb-3">
               Everything you need, in one platform
             </h2>
-            <p className="text-base sm:text-lg text-voiceup-slate max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-voiceup-slate max-w-3xl mx-auto text-pretty">
               Production-grade capabilities designed for regulated, high-volume enterprise voice environments.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+          {/*
+            Flex-wrap layout instead of a strict grid so the LAST row auto-centers when
+            the number of items doesn't divide evenly (e.g. 8 items in a 3-per-row layout
+            leaves 2 orphans — they now sit centered instead of left-aligned).
+            The `calc()` widths mimic 1 / 2 / 3 columns at each breakpoint, accounting for the gap.
+          */}
+          <div className="flex flex-wrap justify-center gap-5 lg:gap-6">
             {features.map((group, i) => {
               const a = featureAccents[i % featureAccents.length];
               const icon = iconForTitle(group.title);
@@ -189,7 +195,7 @@ const ProductPage: React.FC<ProductPageProps> = ({
               return (
                 <div
                   key={group.title}
-                  className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full sm:w-[calc(50%_-_0.625rem)] lg:w-[calc(33.333%_-_1rem)]"
                 >
                   {/* Top colored strip — varies per card */}
                   <div className={`h-1 ${a.strip}`} />
@@ -239,7 +245,7 @@ const ProductPage: React.FC<ProductPageProps> = ({
       <section className="py-16 sm:py-20 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-voiceup-navy mb-3 text-center">{useCasesHeading}</h2>
-          <p className="text-base text-gray-600 text-center max-w-2xl mx-auto mb-10">
+          <p className="text-base text-gray-600 text-center max-w-3xl mx-auto mb-10 text-pretty">
             Common workflows already running on VoiceUp deployments.
           </p>
           <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
@@ -291,38 +297,42 @@ const ProductPage: React.FC<ProductPageProps> = ({
         </section>
       )}
 
-      {/* Why VoiceUp */}
+      {/* Why VoiceUp — cyan gradient panel with white cards so it doesn't merge with the navy footer */}
       {why && why.length > 0 && (
-        <section className="py-16 sm:py-20 bg-voiceup-navy text-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-12 text-center">Why VoiceUp</h2>
+        <section className="py-16 sm:py-20 bg-gradient-to-br from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-skyblue relative overflow-hidden">
+          <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_55%)]" />
+          <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(15,23,42,0.15),transparent_55%)]" />
+
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-xs sm:text-sm tracking-wide uppercase text-white mb-4">
+                Why VoiceUp
+              </p>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+                Built for enterprise voice, from day one
+              </h2>
+            </div>
             <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-              {why.map((w, i) => (
-                <div key={i} className="rounded-2xl border border-white/15 bg-white/5 p-6 hover:bg-white/10 transition-colors">
-                  <h3 className="text-lg sm:text-xl font-semibold text-voiceup-skyblue mb-2">{w.title}</h3>
-                  <p className="text-sm sm:text-base text-white/85 leading-relaxed">{w.body}</p>
-                </div>
-              ))}
+              {why.map((w, i) => {
+                // When the count is odd, span the last card across both columns and constrain
+                // its width so it centers instead of hanging on the left.
+                const isOddLast = i === why.length - 1 && why.length % 2 === 1;
+                return (
+                  <div
+                    key={i}
+                    className={`rounded-2xl bg-white p-6 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 text-center ${
+                      isOddLast ? 'md:col-span-2 md:justify-self-center md:w-full md:max-w-[calc(50%_-_1rem)]' : ''
+                    }`}
+                  >
+                    <h3 className="text-lg sm:text-xl font-semibold text-voiceup-skyblue mb-2">{w.title}</h3>
+                    <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{w.body}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
       )}
-
-      {/* CTA */}
-      <section className="py-16 sm:py-20 bg-gradient-to-r from-voiceup-skyblue via-voiceup-periwinkle to-voiceup-chartblue">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">{ctaTitle}</h2>
-          <p className="text-base sm:text-lg text-white/90 mb-8 max-w-2xl mx-auto">{ctaBody}</p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button asChild className="bg-white text-voiceup-navy hover:bg-voiceup-navy hover:text-white rounded-full px-6">
-              <Link to="/demos#request">Request a demo</Link>
-            </Button>
-            <Button asChild variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-voiceup-navy rounded-full px-6">
-              <Link to="/pricing">Contact sales</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
 
       <Footer />
     </div>

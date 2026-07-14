@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown, Menu, X, Mic, FileText, Bot, Headphones, BarChart3, Cable, BrainCircuit, Video, Building2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronDown, Menu, X, Mic, FileText, Bot, Headphones, BarChart3, Cable, BrainCircuit, Building2 } from 'lucide-react';
+import { isPricingEnabled } from '@/lib/featureFlags';
 
 type DropdownKey = 'products' | 'solutions' | 'demos' | 'customers' | null;
 
@@ -19,7 +19,6 @@ const solutionLinks = [
 ];
 
 const demoLinks = [
-  { to: '/demos#request', label: 'Request a Demo', icon: <Video className="h-4 w-4" />, blurb: 'Tell us your use case — we\'ll reply within 1 business day' },
   { to: '/demos#recording', label: 'Recording Demo', icon: <Headphones className="h-4 w-4" />, blurb: 'See enterprise call capture in action' },
   { to: '/demos#transcriptions', label: 'Transcriptions Demo', icon: <FileText className="h-4 w-4" />, blurb: 'Live multilingual speech-to-text' },
   { to: '/demos#analytics', label: 'Analytics Demo', icon: <BarChart3 className="h-4 w-4" />, blurb: 'AI insights on real conversations' },
@@ -27,9 +26,8 @@ const demoLinks = [
 ];
 
 const customerLinks = [
-  { to: '/customers#vis', label: 'VIS', icon: <Building2 className="h-4 w-4" />, blurb: 'Customer story' },
-  { to: '/customers#yes-bank', label: 'Yes Bank', icon: <Building2 className="h-4 w-4" />, blurb: 'Customer story' },
-  { to: '/customers#partners', label: 'Partner ecosystem', icon: <Building2 className="h-4 w-4" />, blurb: 'Channel & solution partners' },
+  { to: '/customers#vis', label: 'VIS Networks', icon: <Building2 className="h-4 w-4" />, blurb: 'Global strategic partnership' },
+  { to: '/customers#yes-bank', label: 'YES BANK', icon: <Building2 className="h-4 w-4" />, blurb: 'Customer deployment' },
 ];
 
 const Navbar = () => {
@@ -101,16 +99,25 @@ const Navbar = () => {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // Always use the branded (white blur + navy text) look so the navbar reads on any hero.
-  // Hidden when scrolling down (slides up), visible when scrolling up.
-  // Override hide-state if any dropdown or the mobile menu is open so the nav doesn't disappear under the user.
+  // Hidden when scrolling down (slides up), visible when scrolling up. Override hide-state if
+  // any dropdown or the mobile menu is open so the nav doesn't disappear under the user.
   const isMenuActive = activeDropdown !== null || isMobileMenuOpen;
   const shouldHide = isHidden && !isMenuActive;
-  const navbarClasses = `fixed top-0 left-0 right-0 z-50 transition-[transform,box-shadow] duration-300 navbar-blur border-b border-gray-200 ${
-    isScrolled ? 'shadow-md' : 'shadow-sm'
+
+  // At the top of the page, the navbar is transparent so it blends into the hero gradient
+  // (all hero sections in the site have a dark navy → cyan background). Once the user scrolls,
+  // it swaps to the white/blur look with navy text. Force the white look whenever a dropdown
+  // is open so the panels below the nav read on a solid surface.
+  const useSolidChrome = isScrolled || isMenuActive;
+  const navbarClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    useSolidChrome
+      ? 'navbar-blur border-b border-gray-200 shadow-md'
+      : 'bg-transparent border-b border-transparent'
   } ${shouldHide ? '-translate-y-full' : 'translate-y-0'}`;
 
-  const textClasses = 'text-voiceup-navy';
+  const textClasses = `transition-colors duration-300 ${
+    useSolidChrome ? 'text-voiceup-navy' : 'text-white'
+  }`;
 
   const dropdownButtonClass = (key: DropdownKey) =>
     `flex items-center space-x-1 hover:text-voiceup-skyblue transition-colors ${textClasses} ${
@@ -152,21 +159,29 @@ const Navbar = () => {
     <nav className={navbarClasses} aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          {/* Logo — the PNG is a cyan waveform with dark navy accents on a transparent background,
+              which is invisible on the dark hero. At top state we wrap it in a white pill so the
+              full logo (both cyan and dark bars) reads clearly regardless of what's behind. */}
           <Link
             to="/"
-            className="flex items-center space-x-2 cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer"
             onClick={scrollToTop}
             aria-label="VoiceUp home"
           >
-            <img
-              src="/voiceup-logo.png"
-              alt=""
-              width={32}
-              height={32}
-              className="h-8 w-8"
-              decoding="async"
-            />
+            <span
+              className={`inline-flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-300 ${
+                useSolidChrome ? '' : 'bg-white shadow-md'
+              }`}
+            >
+              <img
+                src="/voiceup-logo.png"
+                alt=""
+                width={28}
+                height={28}
+                className="h-7 w-7"
+                decoding="async"
+              />
+            </span>
             <span className={`text-xl font-bold ${textClasses}`}>VoiceUp</span>
           </Link>
 
@@ -223,13 +238,15 @@ const Navbar = () => {
               {renderDropdownPanel('demos', demoLinks)}
             </div>
 
-            {/* Pricing */}
-            <Link
-              to="/pricing"
-              className={`hover:text-voiceup-skyblue transition-colors ${textClasses}`}
-            >
-              Pricing
-            </Link>
+            {/* Pricing — gated behind the feature flag so it hides everywhere at once */}
+            {isPricingEnabled && (
+              <Link
+                to="/pricing"
+                className={`hover:text-voiceup-skyblue transition-colors ${textClasses}`}
+              >
+                Pricing
+              </Link>
+            )}
 
             {/* Customers & Partners */}
             <div
@@ -255,13 +272,6 @@ const Navbar = () => {
             >
               About Us
             </Link>
-
-            <Button
-              asChild
-              className="bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white px-5 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <Link to="/demos#request">Request a Demo</Link>
-            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -285,12 +295,11 @@ const Navbar = () => {
               <MobileGroup label="Products" items={productLinks} />
               <MobileGroup label="Solutions" items={solutionLinks} />
               <MobileGroup label="Demos" items={demoLinks} />
-              <Link to="/pricing" className="block text-voiceup-navy font-semibold py-1">Pricing</Link>
+              {isPricingEnabled && (
+                <Link to="/pricing" className="block text-voiceup-navy font-semibold py-1">Pricing</Link>
+              )}
               <MobileGroup label="Customers & Partners" items={customerLinks} />
               <Link to="/about" className="block text-voiceup-navy font-semibold py-1">About Us</Link>
-              <Button asChild className="w-full bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white">
-                <Link to="/demos#request">Request a Demo</Link>
-              </Button>
             </div>
           </div>
         )}

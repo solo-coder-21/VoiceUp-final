@@ -1,11 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { CheckCircle2, Send, Shield, Server, Cloud, Cog, Loader2 } from 'lucide-react';
+import { CheckCircle2, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SectionIndicator from '@/components/SectionIndicator';
 import { sendDirectEmail, openMailtoFallback, isDirectEmailConfigured } from '@/lib/formSubmit';
-import { cardAccents } from '@/lib/cardAccents';
 
 const productOptions = [
   'Outbound Voicebot',
@@ -20,7 +19,7 @@ const productOptions = [
 
 const deploymentOptions = ['SaaS', 'Private cloud', 'On-premises', 'Hybrid'];
 
-const Pricing = () => {
+const RequestDemo = () => {
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -32,7 +31,7 @@ const Pricing = () => {
     product: productOptions[0],
     deployment: deploymentOptions[0],
     volume: '',
-    message: '',
+    useCase: '',
   });
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -40,7 +39,7 @@ const Pricing = () => {
     setErrorMsg(null);
 
     const product = form.product || 'Not specified';
-    const subject = `Pricing request: ${product}`;
+    const subject = `Demo request: ${product}`;
     const bodyText = [
       `Name: ${form.name}`,
       `Email: ${form.email}`,
@@ -49,8 +48,8 @@ const Pricing = () => {
       `Preferred deployment: ${form.deployment}`,
       `Expected call volume: ${form.volume || 'Not specified'}`,
       '',
-      'Message:',
-      form.message,
+      'Use case / requirements:',
+      form.useCase,
     ].join('\n');
 
     if (isDirectEmailConfigured) {
@@ -64,14 +63,14 @@ const Pricing = () => {
           'Product / interest': product,
           'Preferred deployment': form.deployment,
           'Expected call volume': form.volume || 'Not specified',
-          Message: form.message,
+          'Use case': form.useCase,
         },
       });
       setSubmitting(false);
       if (ok) {
         setSubmitted(true);
       } else {
-        setErrorMsg('We couldn\'t submit your request just now. Please email info@voiceup.ai directly.');
+        setErrorMsg("We couldn't submit your request just now. Please email info@voiceup.ai directly.");
       }
     } else {
       openMailtoFallback(subject, bodyText);
@@ -82,101 +81,48 @@ const Pricing = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <SectionIndicator eyebrow="Pricing" triggerRef={eyebrowRef} />
+      <SectionIndicator eyebrow="Request a Demo" triggerRef={eyebrowRef} />
 
-      {/* Hero */}
-      <section className="relative pt-28 sm:pt-32 pb-12 sm:pb-16 overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-voiceup-navy via-voiceup-navy to-voiceup-skyblue" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(0,168,224,0.4),transparent_55%)]" />
+      {/* Compact hero — the split-card form below acts as the main visual, so this stays short */}
+      <section className="relative pt-28 sm:pt-32 pb-10 sm:pb-14 overflow-hidden">
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-br from-voiceup-navy via-voiceup-navy to-voiceup-periwinkle" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(0,168,224,0.4),transparent_55%)]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
           <p ref={eyebrowRef} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs sm:text-sm tracking-wide uppercase mb-5">
-            Pricing
+            Request a Demo
           </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5 text-balance">
-            Pricing built around <span className="bg-gradient-to-r from-voiceup-skyblue to-white bg-clip-text text-transparent">your deployment</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4 text-balance">
+            Let&apos;s set up a walkthrough
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-white/90 text-pretty">
-            Every VoiceUp deployment differs — call volumes, languages, residency, and integrations all shape the right plan. Tell us about your environment and our team will reply with a tailored quote.
+          <p className="text-base sm:text-lg lg:text-xl text-white/90 text-pretty max-w-3xl">
+            Tell us about your industry, call volumes, and the outcome you&apos;re targeting. A VoiceUp engineer will reply within 1 business day.
           </p>
         </div>
       </section>
 
-      {/* What shapes pricing */}
-      <section className="py-14 sm:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-voiceup-skyblue/10 text-voiceup-skyblue text-xs sm:text-sm tracking-wide uppercase mb-3 font-semibold">
-              What drives pricing
-            </p>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-voiceup-navy mb-3">
-              What shapes your VoiceUp price
-            </h2>
-            <p className="text-gray-600 max-w-3xl mx-auto text-pretty">
-              We price for production voice — so call volume, deployment model, and integrations matter more than seat counts.
-            </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-            {[
-              { icon: <Server className="h-5 w-5" />, title: 'Deployment model', body: 'SaaS, private cloud, on-prem, or hybrid — choose what fits your data residency rules.' },
-              { icon: <Cloud className="h-5 w-5" />, title: 'Concurrent call volume', body: 'Sized for the peak number of simultaneous calls and channels you need to support.' },
-              { icon: <Cog className="h-5 w-5" />, title: 'Integrations & languages', body: 'CRM, ticketing, telephony bridges, and multilingual STT/TTS factor into setup.' },
-              { icon: <Shield className="h-5 w-5" />, title: 'Compliance scope', body: 'Retention, audit, recording, and identity integrations for regulated workloads.' },
-            ].map((c, i) => {
-              const a = cardAccents[i % cardAccents.length];
-              const number = String(i + 1).padStart(2, '0');
-              return (
-                <div
-                  key={c.title}
-                  className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                >
-                  <div className={`h-1 ${a.strip}`} />
-                  <div
-                    aria-hidden="true"
-                    className={`absolute -top-12 -right-12 h-32 w-32 rounded-full ${a.blob} opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-500`}
-                  />
-                  <div className="relative p-5 sm:p-6 flex flex-col items-center text-center">
-                    <div
-                      className={`h-12 w-12 rounded-xl ${a.badge} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300 mb-3`}
-                    >
-                      {c.icon}
-                    </div>
-                    <p className="font-mono text-[10px] uppercase tracking-wider text-gray-400 mb-1">
-                      Factor {number}
-                    </p>
-                    <h3 className="text-base sm:text-[17px] font-bold text-voiceup-navy leading-snug mb-2">
-                      {c.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{c.body}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Sales Form */}
-      <section className="py-16 sm:py-20 bg-gradient-to-b from-gray-50 to-white">
+      {/* Request a Demo form — same split-card layout that used to live on /demos */}
+      <section className="py-12 sm:py-16 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
             <div className="grid lg:grid-cols-[1fr_1.3fr]">
+              {/* Left: dark navy pane with copy + checklist */}
               <div className="bg-gradient-to-br from-voiceup-navy to-voiceup-periwinkle text-white p-8 sm:p-10">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-3">Contact sales</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-3">What to expect</h2>
                 <p className="text-sm sm:text-base text-white/85 leading-relaxed mb-6">
-                  Send us the details below and our enterprise team will reply within 1 business day with a quote tailored to your call volumes and deployment.
+                  A short intro call, then a 30-minute product walkthrough with a VoiceUp engineer &mdash; no slideware, just the product.
                 </p>
                 <ul className="space-y-3 text-sm text-white/90">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-voiceup-skyblue mt-0.5" />
-                    <span>Custom pricing per product or bundle</span>
+                    <span>Live look at outbound voicebots, transcription, and analytics</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-voiceup-skyblue mt-0.5" />
-                    <span>Pilot / proof-of-concept options</span>
+                    <span>Deployment options for on-prem, private cloud, or SaaS</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-voiceup-skyblue mt-0.5" />
-                    <span>Architecture review with a VoiceUp engineer</span>
+                    <span>Architecture review with our solutions team</span>
                   </li>
                 </ul>
                 <p className="mt-8 text-xs text-white/70">
@@ -185,6 +131,7 @@ const Pricing = () => {
                 </p>
               </div>
 
+              {/* Right: form */}
               <div className="p-6 sm:p-8 lg:p-10">
                 {submitted ? (
                   <div className="text-center py-10">
@@ -196,17 +143,29 @@ const Pricing = () => {
                     </h3>
                     <p className="text-sm text-gray-600 mb-6">
                       {isDirectEmailConfigured
-                        ? 'Thanks — a sales engineer will reply within 1 business day.'
+                        ? "Thanks — your message is on its way to our team. We'll get back to you within 1 business day."
                         : (
                           <>
                             Send the prefilled email to{' '}
-                            <a href="mailto:info@voiceup.ai" className="text-voiceup-skyblue hover:underline">info@voiceup.ai</a> and a sales engineer will reply within 1 business day.
+                            <a href="mailto:info@voiceup.ai" className="text-voiceup-skyblue hover:underline">info@voiceup.ai</a> and we&apos;ll be in touch within 1 business day.
                           </>
                         )}
                     </p>
                     <Button
                       variant="outline"
-                      onClick={() => { setSubmitted(false); setErrorMsg(null); setForm({ ...form, message: '', volume: '' }); }}
+                      onClick={() => {
+                        setSubmitted(false);
+                        setErrorMsg(null);
+                        setForm({
+                          name: '',
+                          email: '',
+                          company: '',
+                          product: productOptions[0],
+                          deployment: deploymentOptions[0],
+                          volume: '',
+                          useCase: '',
+                        });
+                      }}
                       className="rounded-full border-voiceup-skyblue text-voiceup-skyblue hover:bg-voiceup-skyblue hover:text-white"
                     >
                       Submit another
@@ -216,51 +175,51 @@ const Pricing = () => {
                   <form onSubmit={onSubmit} className="space-y-4">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="p-name" className="block text-sm font-medium text-voiceup-navy mb-1.5">Full name</label>
-                        <input id="p-name" type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        <label htmlFor="d-name" className="block text-sm font-medium text-voiceup-navy mb-1.5">Full name</label>
+                        <input id="d-name" type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                           className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-voiceup-skyblue focus:border-voiceup-skyblue"
                           placeholder="Jane Doe" />
                       </div>
                       <div>
-                        <label htmlFor="p-email" className="block text-sm font-medium text-voiceup-navy mb-1.5">Work email</label>
-                        <input id="p-email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        <label htmlFor="d-email" className="block text-sm font-medium text-voiceup-navy mb-1.5">Work email</label>
+                        <input id="d-email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                           className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-voiceup-skyblue focus:border-voiceup-skyblue"
                           placeholder="jane@company.com" />
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="p-company" className="block text-sm font-medium text-voiceup-navy mb-1.5">Company</label>
-                      <input id="p-company" type="text" required value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })}
+                      <label htmlFor="d-company" className="block text-sm font-medium text-voiceup-navy mb-1.5">Company</label>
+                      <input id="d-company" type="text" required value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })}
                         className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-voiceup-skyblue focus:border-voiceup-skyblue"
                         placeholder="Acme Corp" />
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="p-product" className="block text-sm font-medium text-voiceup-navy mb-1.5">Product / interest</label>
-                        <select id="p-product" value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })}
+                        <label htmlFor="d-product" className="block text-sm font-medium text-voiceup-navy mb-1.5">Product / interest</label>
+                        <select id="d-product" value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })}
                           className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-voiceup-skyblue focus:border-voiceup-skyblue">
                           {productOptions.map((p) => <option key={p} value={p}>{p}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label htmlFor="p-deploy" className="block text-sm font-medium text-voiceup-navy mb-1.5">Preferred deployment</label>
-                        <select id="p-deploy" value={form.deployment} onChange={(e) => setForm({ ...form, deployment: e.target.value })}
+                        <label htmlFor="d-deploy" className="block text-sm font-medium text-voiceup-navy mb-1.5">Preferred deployment</label>
+                        <select id="d-deploy" value={form.deployment} onChange={(e) => setForm({ ...form, deployment: e.target.value })}
                           className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-voiceup-skyblue focus:border-voiceup-skyblue">
                           {deploymentOptions.map((p) => <option key={p} value={p}>{p}</option>)}
                         </select>
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="p-volume" className="block text-sm font-medium text-voiceup-navy mb-1.5">Expected call volume (optional)</label>
-                      <input id="p-volume" type="text" value={form.volume} onChange={(e) => setForm({ ...form, volume: e.target.value })}
+                      <label htmlFor="d-volume" className="block text-sm font-medium text-voiceup-navy mb-1.5">Expected call volume (optional)</label>
+                      <input id="d-volume" type="text" value={form.volume} onChange={(e) => setForm({ ...form, volume: e.target.value })}
                         className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-voiceup-skyblue focus:border-voiceup-skyblue"
                         placeholder="e.g. 500 concurrent calls, ~2M minutes/month" />
                     </div>
                     <div>
-                      <label htmlFor="p-message" className="block text-sm font-medium text-voiceup-navy mb-1.5">Tell us about your use case</label>
-                      <textarea id="p-message" required rows={4} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
+                      <label htmlFor="d-useCase" className="block text-sm font-medium text-voiceup-navy mb-1.5">What would you like to see?</label>
+                      <textarea id="d-useCase" required rows={4} value={form.useCase} onChange={(e) => setForm({ ...form, useCase: e.target.value })}
                         className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-voiceup-skyblue focus:border-voiceup-skyblue resize-none"
-                        placeholder="Industry, languages, integrations, compliance requirements, target go-live…" />
+                        placeholder="E.g. outbound collections in Hindi + English at 500 concurrent calls, on-prem deployment, integration with our CRM." />
                     </div>
                     {errorMsg && (
                       <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
@@ -273,7 +232,7 @@ const Pricing = () => {
                       className="w-full bg-voiceup-skyblue hover:bg-voiceup-periwinkle text-white rounded-full disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {submitting ? (
-                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending…</>
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending&hellip;</>
                       ) : (
                         <><Send className="h-4 w-4 mr-2" /> Send to info@voiceup.ai</>
                       )}
@@ -296,4 +255,4 @@ const Pricing = () => {
   );
 };
 
-export default Pricing;
+export default RequestDemo;

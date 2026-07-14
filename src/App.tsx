@@ -7,10 +7,12 @@ import { useEffect } from "react";
 
 import Index from "./pages/Index";
 import Demos from "./pages/Demos";
+import RequestDemo from "./pages/RequestDemo";
 import Pricing from "./pages/Pricing";
 import Customers from "./pages/Customers";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import { isPricingEnabled } from "./lib/featureFlags";
 
 import Outbound from "./pages/products/Outbound";
 import Transcriptions from "./pages/products/Transcriptions";
@@ -58,13 +60,22 @@ const App = () => (
 
           {/* Top-level pages */}
           <Route path="/demos" element={<Demos />} />
-          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/request-demo" element={<RequestDemo />} />
+          <Route
+            path="/pricing"
+            element={isPricingEnabled ? <Pricing /> : <Navigate to="/" replace />}
+          />
           <Route path="/customers" element={<Customers />} />
           <Route path="/about" element={<About />} />
 
           {/* Redirects for legacy routes from the previous site */}
           <Route path="/solutions" element={<Navigate to="/products/outbound" replace />} />
-          <Route path="/contact" element={<Navigate to="/pricing" replace />} />
+          <Route
+            path="/contact"
+            element={<Navigate to={isPricingEnabled ? '/pricing' : '/request-demo'} replace />}
+          />
+          {/* Old anchor route that used to open the inline form on /demos */}
+          <Route path="/demos/request" element={<Navigate to="/request-demo" replace />} />
           <Route path="/industries" element={<Navigate to="/customers" replace />} />
           <Route path="/case-studies" element={<Navigate to="/customers" replace />} />
           <Route path="/brochure" element={<Navigate to="/about" replace />} />

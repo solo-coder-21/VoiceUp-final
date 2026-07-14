@@ -77,6 +77,15 @@
     /* Avoid horizontal scrollbars from animated/oversized decorative elements */
     overflow-x: hidden;
   }
+
+  /* Balance headings across the site so short words never orphan on their own line
+     (e.g. "non-negotiable." dangling below the rest of the sentence). Supported in
+     all modern browsers; gracefully falls back to normal wrap otherwise. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
 }
 
 @layer utilities {
